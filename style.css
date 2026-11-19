@@ -304,3 +304,9 @@ tr:last-child td { border-bottom: none; }
   .inline-form { flex-direction: column; }
 }
 .warn-text { color: var(--warn); }
+
+/* Chrome download warning */
+.warn-box { margin-top: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--warn); background: rgba(255, 196, 107, 0.07); color: var(--text-soft); font-size: 14px; }
+.warn-box b { color: var(--warn); }
+.check { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }

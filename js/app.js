@@ -1299,7 +1299,7 @@ A: Write your own answer here.
   // ---------------------------------------------------------------------------
   const CHROME_STATUS_TEXT = {
     available: 'Ready. Runs on this computer: free, no key, and your answers never leave your laptop.',
-    downloadable: 'Supported on this computer. Click below for a one-time model download (a few GB).',
+    downloadable: 'Supported on this computer, but the AI model needs downloading first.',
     downloading: 'Downloading the on-device model…',
     unavailable: "This computer can't run it (needs 16 GB RAM or a GPU with 4 GB+ VRAM, and 22 GB free disk). Try Google Gemini instead: it's free too.",
     unsupported: "Not available in this browser. It needs Chrome 148 or newer on a desktop. Try Google Gemini instead: it's free too.",
@@ -1323,7 +1323,10 @@ A: Write your own answer here.
     $('offBox').classList.toggle('hidden', p !== 'none');
     if (p === 'chrome') {
       $('chromeStatus').textContent = CHROME_STATUS_TEXT[AI.chromeStatus] || AI.chromeStatus;
-      $('chromeEnable').classList.toggle('hidden', !['downloadable', 'downloading'].includes(AI.chromeStatus));
+      // Only offer the download (with the warning + "I understand" tick box) when it's needed
+      const needsDownload = ['downloadable', 'downloading'].includes(AI.chromeStatus);
+      $('chromeConsent').classList.toggle('hidden', !needsDownload);
+      if (AI.chromeStatus !== 'downloading') { $('chromeAgree').checked = false; $('chromeEnable').disabled = true; }
     }
     if (info.needsKey) {
       $('keyHelp').textContent = info.keyHelp;
@@ -1405,6 +1408,7 @@ A: Write your own answer here.
     document.querySelectorAll('input[name="provider"]').forEach((r) => {
       r.onchange = () => { $('settingsMsg').textContent = ''; renderSettings(r.value); };
     });
+    $('chromeAgree').onchange = (e) => { $('chromeEnable').disabled = !e.target.checked; };
     $('cancelSettings').onclick = () => { renderSettings(); $('settingsMsg').textContent = 'Changes discarded.'; };
     $('chromeEnable').onclick = async () => {
       $('chromeEnable').disabled = true;
@@ -1417,7 +1421,6 @@ A: Write your own answer here.
         console.error(e);
         $('settingsMsg').textContent = `Couldn't enable on-device AI: ${e.message}`;
       }
-      $('chromeEnable').disabled = false;
       renderSettings();
       render();
     };

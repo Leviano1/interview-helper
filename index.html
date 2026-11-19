@@ -244,7 +244,7 @@
           <div class="radio-grid" id="providerGroup" role="radiogroup" aria-label="AI provider">
             <label class="radio-card"><input type="radio" name="provider" value="chrome">
               <span class="rc-top"><b>Chrome built-in AI</b><span class="tag good">FREE</span></span>
-              <span class="muted small">Runs on this computer. No key, works offline.</span></label>
+              <span class="muted small">Runs on this computer. Needs a one-time download of a few GB.</span></label>
             <label class="radio-card"><input type="radio" name="provider" value="gemini">
               <span class="rc-top"><b>Google Gemini</b><span class="tag good">FREE KEY</span></span>
               <span class="muted small">Free key from Google AI Studio, no credit card.</span></label>
@@ -258,7 +258,13 @@
 
           <div id="chromeBox" class="hidden">
             <p id="chromeStatus" class="status-box"></p>
-            <button id="chromeEnable" class="btn btn-secondary hidden" type="button"><i data-icon="download" data-size="16"></i>Enable on-device AI</button>
+            <div id="chromeConsent" class="hidden">
+              <p class="warn-box"><b>Before you turn this on:</b> Chrome will download Google's AI model onto your computer.
+                It's several gigabytes, and Chrome needs about 22 GB of free disk space. It downloads once,
+                then works offline. Chrome deletes it automatically if your disk gets nearly full.</p>
+              <label class="check"><input type="checkbox" id="chromeAgree"> I understand this downloads several GB to my computer</label>
+              <button id="chromeEnable" class="btn btn-secondary" type="button" disabled><i data-icon="download" data-size="16"></i>Download on-device AI</button>
+            </div>
           </div>
           <div id="keyBox" class="hidden">
             <p id="keyHelp" class="muted small"></p>
