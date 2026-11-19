@@ -1,14 +1,14 @@
 // app.js — runs the practice session.
 //
-// The app moves between four modes:
-//
-//   idle ──"next question"──► asking ──(question read out)──► answering
-//    ▲                                                            │
-//    │                                     "I'm done" or 5s of silence
-//    │                                                            ▼
-//    └──────────────"next question" / "follow up"─────────────  review
-//
-// Two things listen to the microphone at the same time:
+// The app is always in one of four "modes" (stages of a question):
+//   idle      → nothing happening yet, waiting for you to ask for a question
+//   asking    → the app is reading the question out loud (mic paused)
+//   answering → you are talking; your words and the timer show on screen
+//   review    → your answer is finished and the feedback is shown
+// The arrows show what moves you from one mode to the next:
+
+// Two things listen to the microphone at the same time, because each one gives
+// information the other can't:
 //   1. SpeechRecognition (Chrome)  → the WORDS you said  → fillers, pace, "I" vs "we", result
 //   2. Web Audio analyser          → the SOUND level     → long pauses, speaking time
 //

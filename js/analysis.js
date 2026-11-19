@@ -1,17 +1,22 @@
-// analysis.js — scores a spoken answer. No browser code in here, just plain
-// functions, so everything can be unit-tested with Node (tests/analysis.test.js).
+// analysis.js — works out the feedback for a spoken answer.
 //
-//   analyseAnswer({ transcript, durationSec, longPauses })
-//     -> { words, wpm, fillers, metrics: [ {id, label, value, rating, tip} ], spoken }
+// You give it the words you said and how long you talked, and it returns:
+//   - the 6 feedback tiles (length, pace, filler words, pauses, "I" vs "we", result)
+//   - a short summary that gets read out loud
+//   - how many key points from your script or model answer you hit
 //
-// rating is 'good' | 'ok' | 'bad' (shown on screen as green / amber / red).
+// Each tile is rated 'good', 'ok' or 'bad' (green, amber or red on screen).
+// There's no microphone or screen code here, so it can be tested on its own (tests/analysis.test.js).
+
+// Example:
+//   analyseAnswer({ transcript: "um so I built a Django app…", durationSec: 50 })
+//   → Length 50s (ok), Pace 132 wpm (good), Filler words 1 (good), …
 
 (function (root) {
   'use strict';
 
-  // ---------------------------------------------------------------------------
   // Tunable thresholds: change these to make the coach stricter or kinder
-  // ---------------------------------------------------------------------------
+
   const LIMITS = {
     length: { tooShort: 30, short: 60, long: 150, tooLong: 180 },  // seconds
     pace: { slow: 100, fast: 170, tooFast: 200 },                  // words per minute
@@ -19,9 +24,8 @@
     longPauses: { good: 1, ok: 3 },                                // pauses of 3s+
   };
 
-  // ---------------------------------------------------------------------------
-  // Words
-  // ---------------------------------------------------------------------------
+  // Words - splitting what you said into single words and deciding which ones are filler words
+
   const norm = (w) => w.toLowerCase().replace(/[^a-z0-9'%]/g, '');
 
   function tokenize(transcript) {
@@ -51,7 +55,11 @@
     'do', 'did', 'if', 'would', 'will', "don't", "didn't", 'might', 'could', 'should', 'as',
   ]);
 
-  // Returns { total, byWord: { like: 3, um: 1 }, flagged: Set of token indexes }
+  // Finds the filler words in what you said. Returns:
+  //   total   → how many fillers in total
+  //   byWord  → how many of each one
+  //   flagged → the positions of the filler words, so the screen can highlight them
+
   function countFillers(transcript) {
     const tokens = tokenize(transcript).map(norm);
     const byWord = {};
@@ -77,7 +85,7 @@
     return { total, byWord, flagged };
   }
 
-  // Interviewers want to hear what YOU did, not just the team.
+  // Interviewers want to hear what YOU did, not just the team. Counts the number of I vs We words used.
   function ownership(transcript) {
     const tokens = tokenize(transcript).map(norm);
     let i = 0;
@@ -93,9 +101,8 @@
   const RESULT_CUES = /\b(result|results|outcome|in the end|ended up|which meant|that meant|so that|achieved|improved|reduced|increased|saved|won|delivered|launched|finished|completed|learned|learnt|feedback|grade|award|placed|first place|got an a)\b/i;
   const NUMBER_CUE = /\b\d+(\.\d+)?\s?(%|percent|hours?|days?|weeks?|people|users|times|x)?\b|\b(twice|double|half|first|second|third)\b/i;
 
-  // ---------------------------------------------------------------------------
-  // Formatting
-  // ---------------------------------------------------------------------------
+// Formatting: turns seconds into text, e.g. 80 → "1 minute 20 seconds", or "1:20" for short.
+
   function formatDuration(totalSeconds, short) {
     const s = Math.max(0, Math.round(totalSeconds));
     const m = Math.floor(s / 60);
@@ -106,9 +113,9 @@
     return sec ? `${part(m, 'minute')} ${part(sec, 'second')}` : part(m, 'minute');
   }
 
-  // ---------------------------------------------------------------------------
-  // The main scorer
-  // ---------------------------------------------------------------------------
+// The main scorer: works out words per minute, fillers and "I" vs "we", then rates
+// each of the 6 tiles as good / ok / bad with a tip. Returns all tiles plus the spoken summary.
+
   function analyseAnswer({ transcript, durationSec, longPauses = null }) {
     const words = tokenize(transcript).length;
     const minutes = Math.max(durationSec, 1) / 60;
@@ -184,13 +191,11 @@
     return s.trim();
   }
 
-  // ---------------------------------------------------------------------------
-  // Voice activity: tracks when you were actually making sound
-  // ---------------------------------------------------------------------------
-  // Call update(timeMs, isVoice) ~20 times a second from the audio meter.
-  //
-  //   voice:  ███████░░░░░░░░░░██████░░██████
-  //                   └─ 3.5s ─┘        = 1 long pause
+// Spots long silences while you answer. About 20 times a second the microphone
+// tells it "sound" or "no sound". A silence of 3 seconds or more counts as a long pause.
+//   e.g.  talking ... 3.5s of silence ... talking   → 1 long pause
+// At the end, summary() gives how long you spoke and how many long pauses there were.
+
   function createVoiceTracker({ longPauseMs = 3000 } = {}) {
     let first = null;
     let last = null;
@@ -220,9 +225,11 @@
     };
   }
 
-  // ---------------------------------------------------------------------------
   // Voice commands (used when you're NOT in the middle of an answer)
-  // ---------------------------------------------------------------------------
+  // Turns what you said between questions into a command name.
+  //   "next question please" → 'next'      "how did I do overall" → 'summary'
+  //   anything it doesn't recognise (e.g. chatting to someone) → 'unknown', which is ignored
+  // The checks go from most specific to least, so "try that again" isn't mistaken for "repeat".
   function parseCommand(raw) {
     const t = (raw || '').toLowerCase().replace(/[^\w\s']/g, ' ').replace(/\s+/g, ' ').trim();
     const has = (re) => re.test(t);
@@ -239,7 +246,9 @@
     return 'unknown';
   }
 
-  // "...and that's how we fixed it. I'm done" -> ended, transcript without "I'm done"
+  // Checks if your answer ends with "I'm done" (or similar). If so, the answer is finished
+  // and "I'm done" is removed so it isn't scored as part of your answer.
+  //   "...and we shipped it I'm done" → { ended: true, transcript: "...and we shipped it" }
   const END_PHRASE = /\b(i'm done|i am done|i'm finished|i am finished|that's my answer|that is my answer|end answer|end of answer)\s*$/i;
   function checkEndPhrase(transcript) {
     const t = (transcript || '').trim();
