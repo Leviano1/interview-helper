@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Helper: practise interview answers out loud</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%232F62EA%22/><rect x=%225%22 y=%229%22 width=%2214%22 height=%229%22 rx=%222.5%22 fill=%22none%22 stroke=%22white%22 stroke-width=%221.8%22/><circle cx=%229.5%22 cy=%2213.5%22 r=%221.2%22 fill=%22white%22/><circle cx=%2214.5%22 cy=%2213.5%22 r=%221.2%22 fill=%22white%22/><path d=%22M12 9V6%22 stroke=%22white%22 stroke-width=%221.8%22/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- =============================== HEADER =============================== -->
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="logo" aria-label="Interview Helper">
+        <span class="logo-tile"><i data-icon="bot" data-size="24"></i><span class="logo-dot"></span></span>
+        <span class="logo-text"><b>Interview Helper</b><small>PRACTISE OUT LOUD</small></span>
+      </div>
+      <nav class="nav" aria-label="Pages">
+        <a href="#practise" data-view="practise">Practise</a>
+        <a href="#answers" data-view="answers">My answers</a>
+      </nav>
+      <a href="#settings" class="cog" data-view="settings" aria-label="Settings" title="Settings"><i data-icon="settings" data-size="20"></i></a>
+    </div>
+  </header>
+
+  <div id="unsupported" class="wrap hidden">
+    <div class="banner">This browser doesn't support speech recognition. Please open the app in Google Chrome or Microsoft Edge.</div>
+  </div>
+
+  <main class="wrap">
+    <!-- =============================== 1. PRACTISE =============================== -->
+    <section class="view" id="view-practise">
+
+      <section class="card hero">
+        <div class="label">01 · SPEAK</div>
+        <h1>Practise interview answers out loud.</h1>
+        <p class="sub">I ask a real interview question, you answer with your voice, and you get instant feedback on how you sounded and what you remembered.</p>
+        <div class="hero-actions">
+          <button id="startBtn" class="btn btn-primary btn-lg" type="button"><i data-icon="play"></i><span>Start practice</span></button>
+          <label class="field-label inline">Question type
+            <select id="category" class="field">
+              <option>Mixed</option>
+              <option>About you</option>
+              <option>Behavioural</option>
+              <option>Technical</option>
+              <option>Motivation</option>
+              <option value="Saved">My saved answers</option>
+              <option value="Script">My script (in order)</option>
+            </select>
+          </label>
+        </div>
+        <div class="mic-row">
+          <i data-icon="mic" data-size="16"></i>
+          <span id="status">Press Start practice. You will need your microphone.</span>
+          <div class="meter" title="Microphone level"><div id="meterFill"></div></div>
+        </div>
+        <div id="heard" class="heard"></div>
+      </section>
+
+      <!-- Live answer -->
+      <section id="livePanel" class="card live hidden">
+        <div class="card-head">
+          <span class="label rec"><span class="rec-dot"></span>RECORDING YOUR ANSWER</span>
+          <span id="answerTimer" class="timer">0s</span>
+        </div>
+        <p id="liveQuestion" class="live-question"></p>
+        <p id="liveTranscript" class="live-text">…</p>
+        <p class="muted small">Say “I'm done” or pause for 5 seconds when you finish.</p>
+      </section>
+
+      <div class="row">
+        <!-- Script -->
+        <section class="card script-card" id="scriptPanel">
+          <div class="label">02 · SCRIPT</div>
+          <h2>Practise from your own script</h2>
+          <p class="muted">Write the questions you expect and the answers you want to give. I'll ask them in order and tell you which key points you hit. No AI needed.</p>
+          <div class="btn-row">
+            <button id="scriptExampleBtn" class="btn btn-secondary btn-sm" type="button"><i data-icon="file" data-size="16"></i>Show example</button>
+            <button id="scriptFileBtn" class="btn btn-secondary btn-sm" type="button"><i data-icon="folder" data-size="16"></i>Open .txt</button>
+            <button id="scriptDownloadBtn" class="btn btn-secondary btn-sm" type="button"><i data-icon="download" data-size="16"></i>Save .txt</button>
+            <input id="scriptFile" type="file" accept=".txt,.md,text/plain" hidden>
+          </div>
+          <textarea id="scriptText" class="field dashed mono" rows="9" spellcheck="false" placeholder="Q: Tell me about yourself.&#10;A: I'm a third-year software engineering student...&#10;- optional key point&#10;&#10;Q: Why do you want this internship?&#10;A: ..."></textarea>
+          <div class="btn-row">
+            <button id="scriptLoadBtn" class="btn btn-secondary" type="button"><i data-icon="check"></i>Load script</button>
+            <button id="scriptStartBtn" class="btn btn-white" type="button"><i data-icon="play"></i>Practise my script</button>
+          </div>
+          <p id="scriptMsg" class="muted small" role="status"></p>
+        </section>
+
+        <div class="col">
+          <!-- Now asking -->
+          <section class="card" id="questionCard">
+            <div class="card-head">
+              <span class="label">NOW ASKING</span>
+              <span id="qNumber" class="mono muted small"></span>
+            </div>
+            <p id="qText" class="q-text">Press Start practice and I'll ask you a question.</p>
+            <div class="chips">
+              <span id="qCategory" class="tag accent hidden"></span>
+              <span id="savedRow" class="tag good hidden">MODEL ANSWER SAVED</span>
+            </div>
+            <p id="qHint" class="hint-chip hidden"></p>
+            <ul id="peekList" class="peek hidden"></ul>
+            <div class="grid3">
+              <button id="peekBtn" class="btn btn-secondary btn-stack" type="button" disabled><i data-icon="eye"></i><span>Peek points</span></button>
+              <button id="repeatBtn" class="btn btn-secondary btn-stack" type="button"><i data-icon="repeat"></i><span>Repeat</span></button>
+              <button id="nextBtn" class="btn btn-secondary btn-stack" type="button"><i data-icon="next"></i><span>Next</span></button>
+            </div>
+            <div class="btn-row">
+              <button id="doneBtn" class="btn btn-primary hidden" type="button"><i data-icon="check"></i>I'm done</button>
+              <button id="followUpBtn" class="btn btn-secondary hidden" type="button"><i data-icon="message"></i>Follow-up question</button>
+            </div>
+          </section>
+
+          <!-- Own question -->
+          <section class="card">
+            <div class="label">YOUR OWN QUESTION</div>
+            <p class="muted small">E.g. a question from a job description.</p>
+            <form id="customForm" class="inline-form">
+              <input id="customInput" class="field" placeholder="Why do you want to work at Hiya?" autocomplete="off" aria-label="Your own question">
+              <button type="submit" class="btn btn-primary"><i data-icon="send" data-size="16"></i>Ask me</button>
+            </form>
+          </section>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <section id="feedback" class="feedback">
+        <div class="section-head">
+          <div>
+            <div class="label">03 · FEEDBACK</div>
+            <h2>How that sounded</h2>
+            <p id="fbQuestion" class="muted"></p>
+          </div>
+          <span id="scorePill" class="pill hidden"></span>
+        </div>
+        <div id="fbEmpty" class="card empty dashed-card">
+          <p class="muted">Answer a question and your feedback appears here: length, pace, filler words, pauses, "I" vs "we", and whether you gave a result.</p>
+        </div>
+        <div id="fbBody" class="hidden">
+          <div id="tiles" class="tiles"></div>
+          <div class="row2">
+            <section class="card">
+              <h3>What you said</h3>
+              <p class="muted small">Filler words are <mark>highlighted</mark>.</p>
+              <div id="fbTranscript" class="quote dashed"></div>
+              <div id="fillerChips" class="chips"></div>
+            </section>
+            <section class="card" id="keyCard"></section>
+          </div>
+          <section class="card" id="coachCard">
+            <div class="card-head"><h3>Coach notes</h3><span class="tag accent">AI · OPTIONAL</span></div>
+            <div id="aiSection"></div>
+          </section>
+          <section class="card" id="modelCard">
+            <h3>Your model answer</h3>
+            <div id="modelSection"></div>
+          </section>
+        </div>
+      </section>
+    </section>
+
+    <!-- =============================== 2. MY ANSWERS =============================== -->
+    <section class="view hidden" id="view-answers">
+      <div class="page-head">
+        <div>
+          <div class="label">YOUR PROGRESS</div>
+          <h1>My answers</h1>
+        </div>
+        <div class="btn-row">
+          <button id="importBtn" class="btn btn-secondary" type="button"><i data-icon="upload" data-size="16"></i>Import</button>
+          <button id="exportBtn" class="btn btn-secondary" type="button"><i data-icon="download" data-size="16"></i>Export</button>
+          <button id="newAnswerBtn" class="btn btn-primary" type="button"><i data-icon="plus" data-size="16"></i>New answer</button>
+          <input id="importFile" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <p id="libraryMsg" class="muted small" role="status">Saved answers live in this browser. Use Export to back them up or move them to another computer.</p>
+
+      <div id="statTiles" class="stats"></div>
+
+      <section id="answerForm" class="card hidden">
+        <div class="label" id="afLabel">NEW ANSWER</div>
+        <label class="field-label">Question
+          <input id="afQuestion" class="field" placeholder="Tell me about yourself." autocomplete="off">
+        </label>
+        <label class="field-label">Your model answer
+          <textarea id="afAnswer" class="field dashed" rows="7" placeholder="Write the answer you want to give, in your own words."></textarea>
+        </label>
+        <label class="field-label">Key points, one per line <span class="muted">(optional: otherwise each sentence is a key point)</span>
+          <textarea id="afPoints" class="field mono" rows="4" placeholder="third year&#10;software engineering&#10;won the AI hackathon"></textarea>
+        </label>
+        <p id="afMsg" class="error small"></p>
+        <div class="card-foot">
+          <button id="afCancel" class="btn btn-secondary" type="button">Cancel</button>
+          <button id="afSave" class="btn btn-primary" type="button"><i data-icon="save" data-size="16"></i>Save answer</button>
+        </div>
+      </section>
+
+      <section id="historyPanel" class="card">
+        <div class="card-head"><h2>This session</h2><span class="mono muted small">Say "how did I do overall?"</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Question</th><th>Length</th><th>WPM</th><th>Fillers</th><th>Key points</th><th>Score</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">Saved model answers</h2>
+        <div id="libraryList" class="lib-grid"></div>
+      </section>
+    </section>
+
+    <!-- =============================== 3. SETTINGS =============================== -->
+    <section class="view hidden" id="view-settings">
+      <div class="page-head">
+        <div>
+          <div class="label">SETTINGS</div>
+          <h1>Settings</h1>
+        </div>
+      </div>
+      <div class="row">
+        <section class="card settings-card" id="aiSettingsCard">
+          <h2>AI settings</h2>
+          <div class="info2">
+            <div class="info">
+              <span class="label good-text">ALWAYS ON</span>
+              <b>Delivery feedback</b>
+              <p class="muted small">Length, pace, filler words, pauses, "I" vs "we", results and script key points. No AI needed.</p>
+            </div>
+            <div class="info">
+              <span class="label">WITH AI</span>
+              <b>Smarter coaching</b>
+              <p class="muted small">Content feedback (STAR), follow-up questions, and model answers written from your own story.</p>
+            </div>
+          </div>
+
+          <div class="label">AI PROVIDER</div>
+          <div class="radio-grid" id="providerGroup" role="radiogroup" aria-label="AI provider">
+            <label class="radio-card"><input type="radio" name="provider" value="chrome">
+              <span class="rc-top"><b>Chrome built-in AI</b><span class="tag good">FREE</span></span>
+              <span class="muted small">Runs on this computer. No key, works offline.</span></label>
+            <label class="radio-card"><input type="radio" name="provider" value="gemini">
+              <span class="rc-top"><b>Google Gemini</b><span class="tag good">FREE KEY</span></span>
+              <span class="muted small">Free key from Google AI Studio, no credit card.</span></label>
+            <label class="radio-card"><input type="radio" name="provider" value="openai">
+              <span class="rc-top"><b>OpenAI</b><span class="tag warn">PAID</span></span>
+              <span class="muted small">Needs a paid API key.</span></label>
+            <label class="radio-card"><input type="radio" name="provider" value="none">
+              <span class="rc-top"><b>Off</b><span class="tag muted-tag">NO AI</span></span>
+              <span class="muted small">Delivery feedback and scripts only.</span></label>
+          </div>
+
+          <div id="chromeBox" class="hidden">
+            <p id="chromeStatus" class="status-box"></p>
+            <button id="chromeEnable" class="btn btn-secondary hidden" type="button"><i data-icon="download" data-size="16"></i>Enable on-device AI</button>
+          </div>
+          <div id="keyBox" class="hidden">
+            <p id="keyHelp" class="muted small"></p>
+            <label class="field-label">API key <input type="password" id="apiKey" class="field" autocomplete="off"></label>
+            <label class="field-label">Model <input id="model" class="field mono" autocomplete="off"></label>
+            <p class="muted small lock-note"><i data-icon="lock" data-size="14"></i>Keys are stored only in this browser. Never put a key in the code.</p>
+          </div>
+          <div id="offBox" class="status-box hidden">AI is off. Delivery feedback and script practice still work fully.</div>
+
+          <div class="card-foot">
+            <span id="settingsMsg" class="muted small" role="status"></span>
+            <button id="cancelSettings" class="btn btn-secondary" type="button">Cancel</button>
+            <button id="saveSettings" class="btn btn-primary" type="button">Save</button>
+          </div>
+        </section>
+
+        <section class="card dashed-card say-card">
+          <h2>Things you can say</h2>
+          <ul class="say-list">
+            <li><code>“Next question”</code><span>Asks a new question (or the next one in your script)</span></li>
+            <li><code>“Repeat”</code><span>Reads the question again</span></li>
+            <li><code>“I'm done”</code><span>Ends your answer (or pause for 5 seconds)</span></li>
+            <li><code>“How did I do?”</code><span>Repeats your feedback</span></li>
+            <li><code>“How did I do overall?”</code><span>Summary of the whole session</span></li>
+            <li><code>“Follow up”</code><span>Asks a follow-up about your answer (needs AI)</span></li>
+            <li><code>“Read my model answer”</code><span>Reads your saved answer aloud</span></li>
+            <li><code>“Try that again”</code><span>Asks the same question again</span></li>
+            <li><code>“Help”</code><span>Lists the commands</span></li>
+            <li><code>“Stop listening”</code><span>Turns the microphone off</span></li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/icons.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
