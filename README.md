@@ -1,139 +1,94 @@
 # Interview Helper: practise interview answers out loud
 
-Interview Helper is a voice interview coach. It asks you a real interview question out loud, listens to your spoken answer, and immediately tells you how you came across: length, pace, filler words, long pauses, whether you said what *you* did, and whether you ended with a result. With an optional AI key it also judges your content (STAR structure) and asks a realistic follow-up question, like a real interviewer would.
+![Interview Helper screenshot](screenshots/home.png)
 
-It also **remembers your best answers**. After an attempt, the AI turns *your own story* into a polished model answer (it never invents achievements, and leaves `[placeholders]` for missing details). You edit it, save it, and next time you practise that question Interview Helper checks which **key points** you hit:
+- **Try it online:** https://interview-helper-ten.vercel.app/#practise
+- **Demo video:** (link coming)
 
-```
-1st attempt ──► ✨ AI model answer (from YOUR facts) ──► ✏️ edit ──► 💾 save
-                                                                       │
-next attempt ──► 🎯 "You covered 3 of 4 key points. You missed: the result." ◄┘
-                    Last time → now: points 2/4 → 3/4 ✅ · fillers 6 → 2 ✅
-```
+Interview Helper is a voice interview coach. It reads an interview question out loud (from a question bank you can edit, or your own script), listens to your spoken answer, and immediately tells you how you came across: length, pace, filler words, long pauses, whether you said "I" or "we", and whether you ended with a result. With optional AI, it also judges your content (STAR structure) and asks a follow-up question, like a real interviewer would.
 
-Track: **Real-Time Assistance** (coaching)
+It also **remembers your best answers**. After an attempt, the AI can turn *your own story* into a polished model answer (it never invents achievements, and leaves `[placeholders]` for missing details), or you can write your own. You edit it, save it, and next time you practise that question Interview Helper checks which **key points** you hit.
 
 ## Pages
 
-| Page | What's on it |
-|---|---|
-| **Practise** (home) | Start practice, your script, the current question, live answer, feedback tiles, key points hit, and your model answer |
-| **My answers** | Session summary tiles, the "This session" table, and your saved model answers (practise, edit, delete, import/export, add new) |
-| **Settings** (cog icon) | AI provider (Chrome built-in, Gemini, OpenAI or off), API key, and the list of voice commands |
-
-The look (dark navy, Space Grotesk / Inter / JetBrains Mono, inline line icons) follows `DESIGN.md`.
+- **Practise** (home): start practice, load your script, see the current question, the live answer and timer, feedback tiles, key points hit, and your model answer.
+- **My answers**: session summary and history, plus your saved model answers, which you can practise, edit, delete, add, import or export.
+- **Settings** (cog icon, top right): choose an AI provider (Chrome built-in, Gemini, OpenAI or off), enter an API key, and see the voice commands.
 
 ## Requirements
 
-- **Google Chrome** or **Microsoft Edge** (desktop). Firefox and Safari don't support the speech recognition API.
+- **Google Chrome** or **Microsoft Edge** on a desktop. Firefox and Safari don't support the speech recognition API.
 - A microphone and speakers (headphones are best).
-- An internet connection. Chrome's speech recognition runs on Google's servers.
-- Python 3 to run a small local web server. Node.js is optional, for the tests.
+- An internet connection: Chrome's speech recognition runs on Google's servers.
+- Either the Vercel link above, or Python 3 to run a small local web server.
+- Node.js is optional, only for the tests.
 
 Nothing to install: no npm packages and no build step.
 
-## Run it
+## Run it locally
 
 ```bash
 cd interview-helper
 python3 -m http.server 8000
 ```
 
-Open **http://localhost:8000** in Chrome (on Windows, don't use the `http://[::]:8000` link it prints), click **▶ Start practice**, and allow microphone access.
+Open **http://localhost:8000** in Chrome (on Windows, don't use the `http://[::]:8000` link it prints), click **Start practice**, and allow microphone access. Then:
 
 1. Interview Helper reads a question aloud.
-2. Answer out loud. Say **"I'm done"** or stay quiet for 5 seconds when you finish.
-3. Get your feedback on screen and read aloud, then say **"next question"**.
+2. Answer out loud. Say **"I'm done"**, or stay quiet for 5 seconds, when you finish.
+3. Get your feedback on screen and read aloud, then say **"next question"** when you're ready.
 
-### Optional: AI (free options available)
+## Optional: AI (free options available)
 
-Delivery feedback works with no AI at all. AI adds content feedback (STAR), follow-up questions and model answers. Open **Settings** (the cog, top right) and pick a provider:
+Delivery feedback works with no AI at all. AI adds content feedback (STAR), follow-up questions and model answers. Open **Settings** and pick a provider:
 
-| Provider | Cost | Setup |
-|---|---|---|
-| **Chrome built-in AI** (Gemini Nano, on-device) | Free, no key | Chrome 148+ on desktop, 16 GB RAM or a GPU with 4 GB+ VRAM, 22 GB free disk. Click **Enable on-device AI** once to download the model. Answers never leave your computer. |
-| **Google Gemini API** | Free tier, no credit card | Get a key at [aistudio.google.com](https://aistudio.google.com) → *Get API key*, paste it in. Default model `gemini-flash-lite-latest` (fast); falls back to `gemini-flash-latest` if busy. |
-| **OpenAI** | Paid | Paste a key from platform.openai.com. Default model `gpt-4o-mini`. |
+- **Chrome built-in AI**: free, no key, runs on your own computer, so your answers never leave it. Needs Chrome 148+ on a desktop with 16 GB RAM or a GPU with 4 GB+ VRAM, plus 22 GB free disk. It asks you to confirm a one-time download of a few GB first.
+- **Google Gemini**: free tier, no credit card. Get a key at [aistudio.google.com](https://aistudio.google.com) → *Get API key* and paste it in. Uses `gemini-flash-lite-latest` by default.
+- **OpenAI**: paid. Paste a key from platform.openai.com. Uses `gpt-4o-mini` by default.
 
-If you haven't chosen, Interview Helper uses Chrome's built-in AI automatically when your computer supports it. The badge in the top bar shows which AI is active. Keys are stored only in your browser's localStorage: **never commit a key to the repo.**
+Keys are stored only in your browser, never in the code.
 
-## Script mode: practise your own answers like flashcards (no AI needed)
+## Script mode: practise your own answers like flashcards
 
-Write the questions you expect and the answers you want to give, in a plain text file or straight into the box:
+Write the questions you expect and the answers you want to give, in a `.txt` file or straight into the **02 · Script** box:
 
 ```
 Q: Tell me about yourself.
-A: I'm a third-year software engineering student at Glasgow.
-   I won first place at the AI start-ups hackathon...
-- 3rd year software engineering        ← optional key points / buzzwords
+A: I'm a third-year software engineering student at Glasgow...
+- third year software engineering        ← optional key points
 - won the AI hackathon
-
-Q: Why do you want this internship?
-A: ...
 ```
 
-Click **Load script**, then **▶ Practise my script**. Interview Helper asks each question in order, listens, and shows:
-
-- **% of key points hit**, e.g. *75%: 3 of 4*. Matching is by keywords, so you don't have to say it word for word ("third" = "3rd", word order doesn't matter).
-- Your script answer as a **flashcard**: words you said in green, words you missed in red.
-- At the end, your average and **which question to practise most**.
-
-If an answer has no `-` key points, each sentence becomes a key point. Click **Show example** for a template, and **Save .txt** to keep your script.
+Click **Load script**, then **Practise my script**. Interview Helper asks each question in order, listens, and shows what % of your key points you hit, with your script marked up to show what you said and what you missed. It matches keywords, so you don't have to say it word for word.
 
 ## What it measures
 
-| Metric | How | Good range |
-|---|---|---|
-| Length | time from your first to last word | 1–2½ minutes |
-| Pace | words ÷ minutes | 100–170 words per minute |
-| Filler words | "um", "uh", "like", "you know", "basically", "kind of"… with rules to skip real uses ("I *like* Java", "what *kind of* role") | ≤ 2 per minute |
-| Long pauses | microphone volume (Web Audio API): silent gaps of 3+ seconds | 0–1 |
-| "I" vs "we" | counts I/me/my vs we/us/our | more "I" than "we" |
-| Result | outcome words ("as a result", "delivered", "improved"…) and numbers | present |
-| STAR, strengths, follow-up | LLM (optional) | |
-| Key points hit (script / model answer) | words from each saved key point found in your new answer (stop words removed, simple stemming, "four" = "4"); a point counts if ≥ 50% of its important words appear | all of them |
+- **Length:** time from your first to last word. Good: 1 to 2½ minutes.
+- **Pace:** words per minute. Good: 100 to 170.
+- **Filler words:** "um", "uh", "like", "you know", "basically", "kind of"…, skipping real uses like "I *like* Java". Good: 2 or fewer per minute.
+- **Long pauses:** silences of 3+ seconds, measured from the microphone volume. Good: 0 to 1.
+- **"I" vs "we":** whether you made clear what *you* did. Good: more "I" than "we".
+- **Result:** whether you ended with an outcome ("delivered", "improved"…) or a number.
+- **Key points hit:** how many of your saved key points you mentioned (by keywords).
+- **STAR, strengths and follow-up:** from the AI, if switched on.
 
-All thresholds live in one place (`LIMITS` in `js/analysis.js`) so they're easy to tune.
+All the thresholds live in one place (`LIMITS` in `js/analysis.js`), so they're easy to change.
 
 ## Voice commands
 
-| Say | What happens |
-|---|---|
-| "Next question" / "Skip" | Asks a new question |
-| "Repeat" / "What was the question?" | Reads it again |
-| "I'm done" | Ends your answer |
-| "How did I do?" | Repeats the feedback |
-| "Follow up" | Asks the AI's follow-up question about your answer |
-| "How did I do overall?" | Spoken summary of the whole session |
-| "Read my model answer" | Reads your saved model answer aloud |
-| "Try that again" | Re-asks the same question |
-| "Help" / "Stop listening" | |
+- **"Next question"** / **"Skip"**: asks a new question (or the next one in your script)
+- **"Repeat"**: reads the question again
+- **"I'm done"**: ends your answer
+- **"How did I do?"**: repeats your feedback
+- **"How did I do overall?"**: a spoken summary of the session
+- **"Follow up"**: asks the AI's follow-up question about your answer
+- **"Read my model answer"**: reads your saved answer aloud
+- **"Try that again"**: asks the same question again
+- **"Help"** / **"Stop listening"**
 
-You can also type in your own question, e.g. one from a job description.
+## Saved answers
 
-## My answers (saved model answers)
-
-- After any answer, under **Model answer**: **Build it with AI** (needs a key) or **Write my own** (starts from your transcript).
-- Edit the text and the key points (one per line), fill in any `[placeholders]`, then **Save**.
-- Practise it again from the **My answers** list, or choose **My saved answers** as the question type. You can **peek** at your key points before answering.
-- Saved answers are kept in your browser (localStorage). Use **Export / ⬆ Import** to back them up or move them to another computer.
-
-## How it works
-
-```
-                 ┌─ SpeechRecognition (Chrome) ─► words  ─► fillers, pace, "I"/"we", result ─┐
-🎙️ microphone ───┤                                                                            ├─► analyseAnswer() ─► tiles on screen
-                 └─ Web Audio analyser ─────────► volume ─► long pauses, speaking time ─────┘          │
-                                                                                                       ├─► 🔊 spoken summary
-                                                                         (optional) OpenAI ◄──────────┘     + follow-up question
-```
-
-The app moves between four modes: **idle → asking → answering → review**. While it's talking, the microphone is paused so it doesn't score its own voice.
-
-- **`js/analysis.js`** has all the scoring logic, including key-point coverage, as plain functions with no browser code, so it's unit-tested with Node.
-- **`js/app.js`** runs the session: microphone, volume meter, speech, the flow and the screen.
-- **`js/ai.js`** is one `AI.ask({ system, user, schema })` function in front of three providers (Chrome built-in, Gemini, OpenAI), so the rest of the app doesn't care which one is used. Replies are JSON, and Chrome's built-in model is forced to follow a JSON schema.
-- **`js/questions.js`** is the question bank for software engineering internship interviews.
+Saved model answers and scripts are kept in your browser (localStorage), so they're still there after a refresh. Use **Export** / **Import** on the My answers page to back them up or move them to another computer.
 
 ## Tests
 
@@ -141,27 +96,19 @@ The app moves between four modes: **idle → asking → answering → review**. 
 node tests/analysis.test.js
 ```
 
-## Known limitations
-
-- Chrome's built-in model is small, so its feedback and model answers are simpler than a cloud model's.
-- Chrome's speech recognition sometimes leaves out "um" and "uh", so hesitation counts may be lower than reality. "Like", "you know", "basically" etc. are recognised reliably. A verbatim speech-to-text model (e.g. Whisper) would fix this.
-- Pause detection uses a simple volume threshold, so a very noisy room can hide pauses.
-- Key-point matching works on words, not meaning, so a heavy paraphrase ("finished ahead of schedule" vs "delivered early") may not count. Embeddings or an LLM check would fix this.
-- Saved answers live in one browser unless you export them.
-- English (UK) only.
-
 ## Project structure
 
 ```
 interview-helper/
 ├── index.html
 ├── style.css
+├── screenshots/home.png
 ├── js/
-│   ├── questions.js   question bank
-│   ├── analysis.js    scoring (pure, testable)
+│   ├── questions.js   question bank (easy to add or remove questions)
+│   ├── analysis.js    scoring: fillers, pace, key points (tested)
 │   ├── ai.js          AI providers: Chrome built-in, Gemini, OpenAI
-│   ├── icons.js       inline line icons (no emoji or icon font)
-│   └── app.js         mic, audio meter, speech, flow, AI, UI
+│   ├── icons.js       line icons
+│   └── app.js         mic, speech, practice flow and the screen
 ├── tests/analysis.test.js
 ├── README.md
 ├── ai.md
