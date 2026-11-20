@@ -3,7 +3,7 @@
 ![Interview Helper screenshot](screenshots/home.png)
 
 - **Try it online:** https://interview-helper-ten.vercel.app/#practise
-- **Demo video:** (link coming)
+- **Demo video:** ([Watch on YouTube](https://youtu.be/LaEbbUW78es?si=S6jGp6I7lP35FAXK))
 
 Interview Helper is a voice interview coach. It reads an interview question out loud (from a question bank you can edit, or your own script), listens to your spoken answer, and immediately tells you how you came across: length, pace, filler words, long pauses, whether you said "I" or "we", and whether you ended with a result. With optional AI, it also judges your content (STAR structure) and asks a follow-up question, like a real interviewer would.
 
